@@ -1,7 +1,7 @@
-import java.util;
-import java.util.function;
+import java.util.*;
+import java.util.function.*;
 
- public classDataQuery<Flight>{
+ public class DataQuery<Flight>{
     private Map<String , Comparator<Flight>> sorters;
 
     private Map<String , Predicate<Flight>> filters;
@@ -33,8 +33,8 @@ public void removeSort(String sortName){
     sorters.remove(sortName);
  }
 
-public Comparator<Flights> getFullComparator() { 
-    return soters.values().stream()
+public Comparator<Flight> getFullComparator() { 
+    return sorters.values().stream()
     .reduce(Comparator:: thenComparing)
     .orElse((a,b) -> 0); 
  }
