@@ -1,5 +1,5 @@
 import java.util.List;
 
-interface  Repository {
-  public List<Flight> loadData();
+interface Repository {
+    public List<Flight> loadData();
 }
