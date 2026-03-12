@@ -7,6 +7,4 @@ Maxim Syomushkin.
 
 Yacub Braih. sID: 25383827. Email : braihy@tcd.ie
 
-Serhii-Roman Kikot. 
-    ID: 25383109. 
-    Email: kikots@tcd.ie
+Serhii-Roman Kikot. ID: 25383109. Email: kikots@tcd.ie
