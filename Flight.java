@@ -40,5 +40,18 @@ class Flight
     this.diverted = diverted;
     this.distance = distance;
   }
-}
+    public String toString() {
+    return "Flight {" +
+        "\n  Time: '" + flightTime + '\'' +
+        ", Carrier: '" + carrier + "' (#" + carrierNum + ")" +
+        "\n  Origin: " + origin + " (" + originCity + ", " + originState + ") [WAC: " + originWAC + "]" +
+        "\n  Dest:   " + destinationAir + " (" + destinationCity + ", " + destinationState + ") [WAC: " + destinationWAC + "]" +
+        "\n  Departure (CRS/Actual): " + crsDepartureTime + " / " + departureTime +
+        "\n  Arrival   (CRS/Actual): " + crsArrivalTime + " / " + arrivalTime +
+        "\n  Distance: " + distance + " miles" +
+        "\n  Status: " + (cancelled == 1 ? "CANCELLED" : diverted == 1 ? "DIVERTED" : "OK") +
+        "\n}";
+  }
 
+  }
+}
