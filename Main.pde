@@ -12,6 +12,7 @@ void setup() {
     dataQuery.setFilter("byAirport", FlightFiltersFabric.byAirport("BDL"));
     dataQuery.setSort("byDate", FlightsSortersFabric.byDate(false));
     queryEngine.execute(dataQuery, 0,0).forEach(System.out::println);
+    println("Without filters");
     dataQuery.clearFilters();
     queryEngine.execute(dataQuery, 0, 10).forEach(System.out::println);
 }
