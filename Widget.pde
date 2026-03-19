@@ -1,7 +1,8 @@
 class Widget {
-    int x, y, w, h;
+    float x, y;
+    int w, h;
     color backgroundColor = color(255);
-    Widget(int x, int y, int w, int h, color backgroundColor) {
+    Widget(float x, float y, int w, int h, color backgroundColor) {
         this.x = x;
         this.y = y;
         this.w = w;

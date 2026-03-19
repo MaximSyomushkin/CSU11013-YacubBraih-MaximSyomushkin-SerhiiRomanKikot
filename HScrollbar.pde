@@ -1,50 +1,58 @@
-/**
- * Scrollbar.
- *
- * Move the scrollbars left and right to change the positions of the images.
- */
-
-//True if a mouse button was pressed while no other button was.
 class HScrollbar extends Widget {
 
-  float spos, newspos;    // x position of slider
-  float sposMin, sposMax; // max and min values of slider
-  int loose;              // how loose/heavy
-  boolean over;           // is the mouse over the slider?
+  float spos, newspos;
+  float sposMin, sposMax;
+  int loose;
+  boolean over;
   boolean locked;
   float ratio;
   boolean firstMousePress;
+  boolean prevMousePressed;
 
   HScrollbar (float xp, float yp, int sw, int sh, int l) {
-    super (xp, yp-sh/2, sw, sh, color (50));
+    super(xp, yp - sh/2, sw, sh, color(50));
+
     int widthtoheight = sw - sh;
-    ratio = (float)sw / (float)widthtoheight;
-    spos = x + w/2 - h/2;
-    newspos = spos;
+    ratio = (widthtoheight > 0) ? (float)sw / (float)widthtoheight : 1.0;
+
     sposMin = x;
     sposMax = x + w - h;
-    loose = l;
+
+    spos = sposMin;
+    newspos = spos;
+
+    loose = max(1, l);
+    prevMousePressed = false;
   }
 
   void update() {
-    if (overEvent()) {
-      over = true;
-    } else {
-      over = false;
-    }
+    sposMin = x;
+    sposMax = x + w - h;
+    spos = constrain(spos, sposMin, sposMax);
+    newspos = constrain(newspos, sposMin, sposMax);
+
+    over = overEvent();
+
+    firstMousePress = mousePressed && !prevMousePressed;
+
     if (firstMousePress && over) {
       locked = true;
     }
     if (!mousePressed) {
       locked = false;
     }
+
     if (locked) {
-      newspos = constrain(mouseX-h/2, sposMin, sposMax);
-    }
-    if (abs(newspos - spos) > 1) {
-      spos = spos + (newspos-spos)/loose;
+      newspos = constrain(mouseX - h / 2.0, sposMin, sposMax);
     }
 
+    if (abs(newspos - spos) > 0.1) {
+      spos += (newspos - spos) / loose;
+    } else {
+      spos = newspos;
+    }
+
+    prevMousePressed = mousePressed;
   }
 
   float constrain(float val, float minv, float maxv) {
@@ -52,29 +60,34 @@ class HScrollbar extends Widget {
   }
 
   boolean overEvent() {
-    if (mouseX > x && mouseX < x+w &&
-      mouseY > y && mouseY < y+h) {
-      return true;
-    } else {
-      return false;
-    }
+    return (mouseX > x && mouseX < x + w &&
+            mouseY > y && mouseY < y + h);
   }
 
-  void display() {
+  void drawWidget() {
     noStroke();
     fill(204);
     rect(x, y, w, h);
-    if (over || locked) {
-      fill(0, 0, 0);
-    } else {
-      fill(102, 102, 102);
-    }
+
+    if (over || locked) fill(0);
+    else fill(102);
+
     rect(spos, y, h, h);
   }
 
   float getPos() {
-    // Convert spos to be values between
-    // 0 and the total width of the scrollbar
-    return spos * ratio;
+    return (spos - sposMin) * ratio;
+  }
+
+  float getPos01() {
+    float range = sposMax - sposMin;
+    if (range <= 0) return 0;
+    return (spos - sposMin) / range;
+  }
+
+  void setPos01(float p) {
+    p = constrain(p, 0, 1);
+    spos = lerp(sposMin, sposMax, p);
+    newspos = spos;
   }
 }
