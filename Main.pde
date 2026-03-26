@@ -75,8 +75,8 @@ void setup() {
     }
     tableWidget.y += 50;
 
-    // --- Button Setup ---
-    btn1 = new Button(200, 150, 200, 50, "Tables");
+    // button setup
+    btn1 = new Button(200, 150, 200, 50, "Table");
     btn2 = new Button(200, 250, 200, 50, "Graphs");
 
     
@@ -87,8 +87,6 @@ void draw() {
     initialScreen.drawScreen();
     
     
-    
-
     hs1.update();
     hs1.drawWidget();
 
