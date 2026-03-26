@@ -4,21 +4,22 @@ RepositoryFile repository;
 DataService dataService;
 DataQuery dataQuery;
 QueryEngine queryEngine;
-Screen initialScreen;
+
+Screen tableScreen, graphScreen, menuScreen;
+
 TableWidget tableWidget;
-float scrollMultiplier = 1.0f;
-ArrayList<String> headers = new ArrayList<String>();
-PieChart pieChart;
-PieChart top5PieChart;
+PieChart pieChart, top5PieChart;
     
 ScrollableTable scrollableTable;
-TextInput sortByAirline;
-TextInput sortByDestination;
-TextInput sortByOrigin;
-Button applyButton;
+TextInput sortByAirline, sortByDestination, sortByOrigin;
+Button btn1, btn2, applyButton, backButton;
 
 HashMap<String, TextInput> focusedInput = new HashMap<>();
 TextInputGroup textInputGroup;
+
+int gameState = 0; // 0 = Menu, 1 = Table , 2 = Graph
+
+ArrayList<String> headers = new ArrayList<>();
 
 void prepareTableData(List<Flight> flights) {
     ArrayList<ArrayList<String>> tableData = DataMapper.flightsToTableData(flights);
@@ -26,32 +27,41 @@ void prepareTableData(List<Flight> flights) {
 }
 void setup() {
     size(1400,800);
+    tableScreen = new Screen();
+    graphScreen = new Screen();
+    menuScreen = new Screen();
+
     repository = new RepositoryFile("flights2k.csv");
     dataService = new DataService(repository);
     queryEngine = new QueryEngine(dataService);
     dataQuery = new DataQuery();
-    initialScreen = new Screen();
     tableWidget = new TableWidget();
-    textInputGroup = new TextInputGroup(50,50,300, 300, color(220));
+    textInputGroup = new TextInputGroup(200,50,300, 300, color(220));
     
     List<Flight> flights = queryEngine.execute(dataQuery, 0, 0);
+    
 
-    scrollableTable = new ScrollableTable(0, 300, 1200, 500, color(200));
-    initialScreen.addWidget(scrollableTable);
+    scrollableTable = new ScrollableTable(100, 300, 1200, 500, color(200));
+    tableScreen.addWidget(scrollableTable);
 
     // Input fields for sorting
-    sortByAirline = new TextInput(50, 50, 200, 30, color(220), "Sort by Airline");
-    sortByDestination = new TextInput(50, 120, 200, 30, color(220), "Sort by Destination");
-    sortByOrigin = new TextInput(50, 180, 200, 30, color(220), "Sort by Origin");
-    applyButton = new Button(50, 250, 100, 30, color(180), "Apply");
+    sortByAirline = new TextInput(200, 50, 200, 30, color(220), "Sort by Airline");
+    sortByDestination = new TextInput(200, 120, 200, 30, color(220), "Sort by Destination");
+    sortByOrigin = new TextInput(200, 180, 200, 30, color(220), "Sort by Origin");
+
+    applyButton = new Button(200, 250, 100, 30, color(180), "Apply");
+
+    backButton = new Button(50, 50, 100, 30, color(180), "Back");
+    
     sortByAirline.setFocused(true);
 
     textInputGroup.addTextInput(sortByAirline);
     textInputGroup.addTextInput(sortByDestination);
     textInputGroup.addTextInput(sortByOrigin);
 
-    initialScreen.addWidget(applyButton);
-    initialScreen.addWidget(textInputGroup);
+    tableScreen.addWidget(applyButton);
+    tableScreen.addWidget(backButton);
+    tableScreen.addWidget(textInputGroup);
     
     // Prepare pie chart data
     // HashMap<String, Float> top5PieData = new HashMap<String, Float>();
@@ -65,7 +75,7 @@ void setup() {
     //     }
     // }
      // top5PieChart = new PieChart(1200, 50, 250, 250, color(200,100,100), top5PieData);
-    // initialScreen.addWidget(top5PieChart);
+    // tableScreen.addWidget(top5PieChart);
     HashMap<String, Float> pieData = new HashMap<String, Float>();
     for (Flight flight : flights) {
         String carrier = flight.carrier;
@@ -78,7 +88,8 @@ void setup() {
     pieChart = new PieChart(800, 50, 250, 250, color(100,200,100), pieData);
    
     
-    initialScreen.addWidget(pieChart);
+    graphScreen.addWidget(pieChart);
+    graphScreen.addWidget(backButton);
 
     // Headers for table
     headers.add("ID");
@@ -102,64 +113,83 @@ void setup() {
     headers.add("Distance");
     
     prepareTableData(flights);
+     // button setup
+    btn1 = new Button(200, 150, 200, 50,color(180), "Table");
+    btn2 = new Button(200, 250, 200, 50, color(180), "Graphs");
+    menuScreen.addWidget(btn1);
+    menuScreen.addWidget(btn2);
 }
 
 void draw() {
     background(255);
-    initialScreen.drawScreen();
-    // pieChart.drawWidget();
-    // scrollableTable.drawWidget();
+   if (gameState == 0) {
+    fill(0);
+    textAlign(CENTER);
+    textSize(15);
+    text("Main menu", width/2, 80);
+    menuScreen.drawScreen();
+  } else if (gameState == 1) {
+    tableScreen.drawScreen();
+  } else if (gameState == 2) {
+    graphScreen.drawScreen();
+  }
 }
 
 
 void keyPressed() {
-   initialScreen.handleKeyPressed(key, keyCode);
-}
-void mousePressed() {
-    initialScreen.handleMousePressed(mouseX, mouseY);
-    // if (!scrollableTable.scrollBar.firstMousePress) {
-    //     scrollableTable.scrollBar.firstMousePress = true;
-    // }
-    //if (scrollableTable.isClicked(mouseX, mouseY)) {
-    //    int headerIndex = scrollableTable.clickedOnHeaderIndex(mouseX, mouseY);
-    //    if (headerIndex != -1) {
-    //        println("Clicked on header: " + headers.get(headerIndex));
-    //    }
-    //}
-    if (applyButton.isClicked(mouseX, mouseY)) {
-        dataQuery.setFilter("Airline",FlightFiltersFabric.byAirline(sortByAirline.getText()));
-        dataQuery.setFilter("Destination",FlightFiltersFabric.byDestination(sortByDestination.getText()));
-        dataQuery.setFilter("Origin",FlightFiltersFabric.byOrigin(sortByOrigin.getText()));
-        List<Flight> flights = queryEngine.execute(dataQuery, 0, 0);
-        prepareTableData(flights);
+    if (gameState == 0) {
+        // Handle menu navigation if needed
+    } else if (gameState == 1) {
+        tableScreen.handleKeyPressed(key, keyCode);
+    } else if (gameState == 2) {
+        // Handle graph interactions if needed
     }
-    if (sortByAirline.isClicked(mouseX, mouseY)) {
-        sortByAirline.setFocused(true);
-        sortByDestination.setFocused(false);
-        sortByOrigin.setFocused(false);
-    } else if (sortByDestination.isClicked(mouseX, mouseY)) {
-        sortByAirline.setFocused(false);
-        sortByDestination.setFocused(true);
-        sortByOrigin.setFocused(false);
-    } else if (sortByOrigin.isClicked(mouseX, mouseY)) {
-        sortByAirline.setFocused(false);
-        sortByDestination.setFocused(false);
-        sortByOrigin.setFocused(true);
-    } else {
-        sortByAirline.setFocused(false);
-        sortByDestination.setFocused(false);
-        sortByOrigin.setFocused(false);
+}
+
+void mousePressed() {
+    if (gameState == 0) {
+        if (btn1.isClicked(mouseX, mouseY)) {
+            println("Loading Tables...");
+            gameState = 1;
+        }
+        if (btn2.isClicked(mouseX, mouseY)) {
+            println("Loading Graphs...");
+            gameState = 2;
+        }
+    } else if (gameState == 1) {
+        tableScreen.handleMousePressed(mouseX, mouseY);
+        if (backButton.isClicked(mouseX, mouseY)) {
+            gameState = 0; // Return to menu
+        }
+    } else if (gameState == 2) {
+        graphScreen.handleMousePressed(mouseX, mouseY);
+        if (backButton.isClicked(mouseX, mouseY)) {
+            gameState = 0; // Return to menu
+        }
     }
 }
 
 void mouseReleased() {
-    initialScreen.handleMouseReleased(mouseX, mouseY);
+    if (gameState == 1) {
+        tableScreen.handleMouseReleased(mouseX, mouseY);
+    } else if (gameState == 2) {
+        // Handle mouse release for graphs if needed
+    }
 }
 void mouseDragged() {
-    initialScreen.handleMouseDragged(mouseX, mouseY);
+    if (gameState == 1) {
+        tableScreen.handleMouseDragged(mouseX, mouseY);
+    } else if (gameState == 2) {
+        // Handle mouse drag for graphs if needed
+    }
 }
 void mouseWheel(MouseEvent event) {
-    if (scrollableTable != null) {
-        scrollableTable.handleMouseWheel(event.getCount());
+    if (gameState == 1) {
+        // tableScreen.handleMouseWheel(event);
+        if (scrollableTable != null) {
+            scrollableTable.handleMouseWheel(event.getCount());
+        }
+    } else if (gameState == 2) {
+        // Handle mouse wheel for graphs if needed
     }
 }
