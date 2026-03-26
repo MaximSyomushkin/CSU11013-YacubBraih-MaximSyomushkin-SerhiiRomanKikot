@@ -53,8 +53,14 @@ class TableWidget extends Widget {
     }
     void drawWidget(float scrollOffsetX, float scrollOffsetY) {
         super.drawWidget();
+        textSize(12);
+        textAlign(LEFT, CENTER);
         int startCol = 0;
         float startColX = x + scrollOffsetX;
+        if (matrixData.size() == 0) {
+            text("No data to display", x + 20, y + 40);
+            return;
+        }
 
         while (startCol < columnWidths.size() && startColX + columnWidths.get(startCol) < 0) {
             startColX += columnWidths.get(startCol);
@@ -108,6 +114,27 @@ class TableWidget extends Widget {
             }
 
             rowY += rowHeights.get(i);
+        }
+    }
+    int getHeaderIndexByCoords(float headerX, float headerY) {
+        if (headerY < y || headerY > y + headerHeight) {
+            return -1;
+        }
+        println("Clicked on header area");
+        float xOffset = 0;
+        for (int i = 0; i < columnWidths.size(); i++) {
+            println("Checking column " + i + " at X: " + (x + xOffset) + " to " + (x + xOffset + columnWidths.get(i)));
+            if (headerX >= x + xOffset && headerX <= x + xOffset + columnWidths.get(i)) {
+                return i;
+            }
+            xOffset += columnWidths.get(i);
+        }
+        return -1;
+    }
+    void handleMousePressed(int mx, int my) {
+        int headerIndex = getHeaderIndexByCoords(mx, my);
+        if (headerIndex != -1) {
+            println("Clicked on header: " + headers.get(headerIndex));
         }
     }
 

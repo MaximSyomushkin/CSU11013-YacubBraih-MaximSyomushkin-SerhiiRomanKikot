@@ -6,8 +6,6 @@ class HScrollbar extends Widget {
   boolean over;
   boolean locked;
   float ratio;
-  boolean firstMousePress;
-  boolean prevMousePressed;
 
   HScrollbar (float xp, float yp, int sw, int sh, int l) {
     super(xp, yp - sh/2, sw, sh, color(50));
@@ -22,7 +20,6 @@ class HScrollbar extends Widget {
     newspos = spos;
 
     loose = max(1, l);
-    prevMousePressed = false;
   }
 
   void update() {
@@ -33,15 +30,6 @@ class HScrollbar extends Widget {
 
     over = overEvent();
 
-    firstMousePress = mousePressed && !prevMousePressed;
-
-    if (firstMousePress && over) {
-      locked = true;
-    }
-    if (!mousePressed) {
-      locked = false;
-    }
-
     if (locked) {
       newspos = constrain(mouseX - h / 2.0, sposMin, sposMax);
     }
@@ -51,8 +39,6 @@ class HScrollbar extends Widget {
     } else {
       spos = newspos;
     }
-
-    prevMousePressed = mousePressed;
   }
 
   float constrain(float val, float minv, float maxv) {
@@ -89,5 +75,21 @@ class HScrollbar extends Widget {
     p = constrain(p, 0, 1);
     spos = lerp(sposMin, sposMax, p);
     newspos = spos;
+  }
+
+  void handleMousePressed(int mouseX, int mouseY) {
+    if (isClicked(mouseX, mouseY)) {
+      locked = true;
+    }
+  }
+
+  void handleMouseReleased(int mouseX, int mouseY) {
+    locked = false;
+  }
+
+  void handleMouseDragged(float mouseX, float mouseY) {
+    if (locked) {
+      newspos = constrain(mouseX - h / 2.0, sposMin, sposMax);
+    }
   }
 }

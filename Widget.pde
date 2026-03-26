@@ -13,4 +13,19 @@ class Widget {
         fill(backgroundColor);
         rect(x, y, w, h);
     }
+    void handleMousePressed(int mx, int my) {
+        return;
+    }
+    void handleMouseReleased(int mx, int my) {
+        return;
+    }
+    void handleMouseDragged(int mx, int my) {
+        return;
+    }
+    void handleKeyPressed(char key, int keyCode) {
+        return;
+    }
+    boolean isClicked(int mx, int my) {
+        return mx >= x && mx <= x + w && my >= y && my <= y + h;
+    }
 }

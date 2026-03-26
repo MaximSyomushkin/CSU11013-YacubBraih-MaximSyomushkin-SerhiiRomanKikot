@@ -1,48 +1,43 @@
-/**
- * Scrollbar.
- *
- * Move the scrollbars left and right to change the positions of the images.
- */
-
-//True if a mouse button was pressed while no other button was.
 class VScrollbar extends Widget {
 
-  float spos, newspos;    // x position of slider
-  float sposMin, sposMax; // max and min values of slider
-  int loose;              // how loose/heavy
-  boolean over;           // is the mouse over the slider?
+  float spos, newspos;
+  float sposMin, sposMax;
+  int loose;
+  boolean over;
   boolean locked;
   float ratio;
-  boolean firstMousePress;
 
   VScrollbar (float xp, float yp, int sw, int sh, int l) {
-    super (xp, yp-sh/2, sw, sh, color (50));
+    super(xp, yp, sw, sh, color(50));
+
     int heighttowidth = sh - sw;
-    ratio = (float)sh / (float)heighttowidth;
-    spos = y + h/2 - w/2;
-    newspos = spos;
+    ratio = (heighttowidth > 0) ? (float)sh / (float)heighttowidth : 1.0;
+
     sposMin = y;
-    sposMax = y + h - w;
-    loose = l;
+    sposMax = y + h - w; // квадратный ползунок высотой w
+
+    spos = sposMin;
+    newspos = spos;
+
+    loose = max(1, l);
   }
 
   void update() {
-    if (overEvent()) {
-      over = true;
-    } else {
-      over = false;
-    }
-    if (firstMousePress && over) {
-      locked = true;
-    }
-    if (!mousePressed) {
-      locked = false;
-    }
+    sposMin = y;
+    sposMax = y + h - w;
+    spos = constrain(spos, sposMin, sposMax);
+    newspos = constrain(newspos, sposMin, sposMax);
+
+    over = overEvent();
+
     if (locked) {
-      newspos = constrain(mouseY-w/2, sposMin, sposMax);
+      newspos = constrain(mouseY - w / 2.0, sposMin, sposMax);
     }
-    if (abs(newspos - spos) > 1) {
-      spos = spos + (newspos-spos)/loose;
+
+    if (abs(newspos - spos) > 0.1) {
+      spos += (newspos - spos) / loose;
+    } else {
+      spos = newspos;
     }
   }
 
@@ -51,29 +46,38 @@ class VScrollbar extends Widget {
   }
 
   boolean overEvent() {
-    if (mouseX > x && mouseX < x+w &&
-      mouseY > y && mouseY < y+h) {
-      return true;
-    } else {
-      return false;
-    }
+    return (mouseX > x && mouseX < x + w &&
+            mouseY > y && mouseY < y + h);
   }
 
-  void display() {
+  void drawWidget() {
     noStroke();
     fill(204);
     rect(x, y, w, h);
-    if (over || locked) {
-      fill(0, 0, 0);
-    } else {
-      fill(102, 102, 102);
-    }
+
+    if (over || locked) fill(0);
+    else fill(102);
+
     rect(x, spos, w, w);
   }
 
-  float getPos() {
-    // Convert spos to be values between
-    // 0 and the total width of the scrollbar
-    return spos * ratio;
+  void handleMousePressed(int mouseX, int mouseY) {
+    if (isClicked(mouseX, mouseY)) {
+      locked = true;
+    }
+  }
+
+  void handleMouseReleased(int mouseX, int mouseY) {
+    locked = false;
+  }
+
+  void handleMouseDragged(float mouseX, float mouseY) {
+    if (locked) {
+      newspos = constrain(mouseY - w / 2.0, sposMin, sposMax);
+    }
+  }
+
+  void scrollByWheel(float deltaSteps) {
+    newspos = constrain(newspos + deltaSteps * 20, sposMin, sposMax);
   }
 }
