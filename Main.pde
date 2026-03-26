@@ -8,6 +8,7 @@ Screen initialScreen;
 TableWidget tableWidget;
 float scrollMultiplier = 1.0f;
 ArrayList<String> headers = new ArrayList<String>();
+Button btn1, btn2;
 
 void setup() {
     size(1400,800);
@@ -19,6 +20,7 @@ void setup() {
     tableWidget = new TableWidget();
     ArrayList<ArrayList<String>> tableData = new ArrayList<ArrayList<String>>();
     List<Flight> flights = queryEngine.execute(dataQuery, 0, 0);
+    
 
     initialScreen.addWidget(tableWidget);
     headers.add("ID");
@@ -72,6 +74,12 @@ void setup() {
         scrollMultiplier = (float) (tableWidget.h / width);
     }
     tableWidget.y += 50;
+
+    // --- Button Setup ---
+    btn1 = new Button(200, 150, 200, 50, "Tables");
+    btn2 = new Button(200, 250, 200, 50, "Graphs");
+
+    
 }
 
 void draw() {
@@ -79,7 +87,7 @@ void draw() {
     initialScreen.drawScreen();
     
     
-    tableWidget.drawWidget(0, -hs1.spos * scrollMultiplier);
+    
 
     hs1.update();
     hs1.drawWidget();
@@ -87,9 +95,30 @@ void draw() {
     if (hs1.firstMousePress) {
       hs1.firstMousePress = false;
     }
+
+   if (gameState == 0) {
+    drawMenu();
+  } else if (gameState == 1) {
+    textSize(10);
+    tableWidget.drawWidget(0, -hs1.spos * scrollMultiplier);
+  } else if (gameState == 2) {
+    drawSceneB();
+  }
 }
 void mousePressed() {
     if (!hs1.firstMousePress) {
         hs1.firstMousePress = true;
+    }
+    if (gameState == 0) {
+    if (btn1.isClicked()) {
+      println("Loading Tables...");
+      // 
+      gameState = 1;
+    }
+    if (btn2.isClicked()) {
+      println("Loading Graphs...");
+      // 
+      gameState = 2;
+}
     }
 }
