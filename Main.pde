@@ -2,11 +2,15 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Comparator;
 import java.util.function.Function;
+import processing.sound.*;
 
 RepositoryFile repository;
 DataService dataService;
 DataQuery dataQuery;
 QueryEngine queryEngine;
+SoundFile clickSound;
+SoundFile loadSound;
+SoundFile transitionSound;
 
 Screen tableScreen, graphScreen, menuScreen;
 
@@ -14,7 +18,7 @@ PieChart pieChart, top5PieChart;
     
 ScrollableTable scrollableTable;
 TextInput sortByAirline, sortByDestination, sortByOrigin;
-Button btn1, btn2, applyButton, backButton;
+Button btn1, btn2, quitButton, applyButton, backButton;
 
 HashMap<String, TextInput> focusedInput = new HashMap<>();
 TextInputGroup textInputGroup;
@@ -32,6 +36,12 @@ void prepareTableData(List<Flight> flights) {
 }
 void setup() {
     size(1400,800);
+
+    clickSound = new SoundFile(this, "universfield-computer-mouse-click-352734.mp3");
+    loadSound = new SoundFile(this, "ElevenLabs_Smooth_ascending_tones,_process_start.mp3");
+    transitionSound = new SoundFile(this, "oxidvideos-transition-sfx-2-409073.mp3");
+
+
     tableScreen = new Screen();
     graphScreen = new Screen();
     menuScreen = new Screen();
@@ -144,8 +154,12 @@ void setup() {
      // button setup
     btn1 = new Button(width/2-100, 150, 200, 50,color(180), "Table");
     btn2 = new Button(width/2-100, 250, 200, 50, color(180), "Pie Chart");
+    quitButton = new Button(width/2-100, 350, 200, 50, color(180), "Quit");
     menuScreen.addWidget(btn1);
     menuScreen.addWidget(btn2);
+    menuScreen.addWidget(quitButton);
+
+    loadSound.play();
 }
 
 void draw() {
@@ -179,13 +193,21 @@ void mousePressed() {
     if (gameState == 0) {
         if (btn1.isClicked(mouseX, mouseY)) {
             println("Loading Tables...");
+            clickSound.play();
             gameState = 1;
         }
         if (btn2.isClicked(mouseX, mouseY)) {
             println("Loading Graphs...");
+            clickSound.play();
             gameState = 2;
         }
+        if (quitButton.isClicked(mouseX, mouseY)) {
+            println("Quitting...");
+            clickSound.play();
+            exit();
+        }
     } else if (gameState == 1) {
+        transitionSound.play();
         tableScreen.handleMousePressed(mouseX, mouseY); 
         if (applyButton.isClicked(mouseX,mouseY)) {
             String airline = sortByAirline.getText().trim();
@@ -210,10 +232,12 @@ void mousePressed() {
             prepareTableData(flights);
         }
     } else if (gameState == 2) {
+        transitionSound.play();
         graphScreen.handleMousePressed(mouseX, mouseY);
     }
     if (backButton.isClicked(mouseX, mouseY)) {
         gameState = 0; // Return to menu
+        transitionSound.play();
     }
 }
 
