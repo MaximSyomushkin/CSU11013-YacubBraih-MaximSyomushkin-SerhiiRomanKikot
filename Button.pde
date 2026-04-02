@@ -7,10 +7,27 @@ class Button extends Widget {
     
     @Override
     public void drawWidget() {
-        fill(backgroundColor);
-        rect(x, y, w, h);
-        fill(0);
-        textAlign(CENTER, CENTER);
-        text(label, x + w / 2, y + h / 2);
+        if (isHovered(mouseX, mouseY)) {
+            stroke(204, 20, 20);
+            fill(100);
+            rect(x, y, w, h);            
+            fill(0);
+            textAlign(CENTER, CENTER);
+            text(label, x + w / 2, y + h / 2);
+        }
+        else
+        {
+            fill(backgroundColor);
+            rect(x, y, w, h);
+            fill(0);
+            stroke(204, 102, 0);
+            textAlign(CENTER, CENTER);
+            text(label, x + w / 2, y + h / 2);
+        }
     }
+
+    public boolean isHovered(int mx, int my) {
+        return mx >= x && mx <= x + w && my >= y && my <= y + h;
+    }
+
 }
