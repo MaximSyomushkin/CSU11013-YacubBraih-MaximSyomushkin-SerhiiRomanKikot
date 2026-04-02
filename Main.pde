@@ -267,7 +267,6 @@ void mousePressed() {
             exit();
         }
     } else if (gameState == 1) {
-        transitionSound.play();
         tableScreen.handleMousePressed(mouseX, mouseY); 
         if (applyButton.isClicked(mouseX,mouseY)) {
             String airline = sortByAirline.getText().trim();
