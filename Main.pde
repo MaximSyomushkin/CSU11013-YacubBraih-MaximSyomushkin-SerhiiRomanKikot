@@ -3,9 +3,6 @@ import java.util.HashMap;
 import java.util.Comparator;
 import java.util.function.Function;
 
-PFont headerFont;
-PFont everythingFont;
-
 RepositoryFile repository;
 DataService dataService;
 DataQuery dataQuery;
@@ -35,14 +32,11 @@ void prepareTableData(List<Flight> flights) {
 }
 void setup() {
     size(1400,800);
-    headerFont = createFont("Arial-BoldMT-48.vlw", 48);
-    everythingFont = createFont("ArialMT-20.vlw", 20);
-    textFont(everythingFont);
     tableScreen = new Screen();
     graphScreen = new Screen();
     menuScreen = new Screen();
 
-    repository = new RepositoryFile("flights100k.csv");
+    repository = new RepositoryFile("flights10k.csv");
     dataService = new DataService(repository);
     queryEngine = new QueryEngine(dataService);
     dataQuery = new DataQuery();
@@ -160,9 +154,8 @@ void draw() {
     fill(0);
     textAlign(CENTER);
     textSize(100);
-    textFont(headerFont);
     text("Main menu", width/2, 80);
-    textFont(everythingFont);
+    textSize(20);
     menuScreen.drawScreen();
   } else if (gameState == 1) {
     tableScreen.drawScreen();
@@ -193,7 +186,7 @@ void mousePressed() {
             gameState = 2;
         }
     } else if (gameState == 1) {
-        tableScreen.handleMousePressed(mouseX, mouseY);
+        tableScreen.handleMousePressed(mouseX, mouseY); 
         if (applyButton.isClicked(mouseX,mouseY)) {
             String airline = sortByAirline.getText().trim();
             String destination = sortByDestination.getText().trim();
