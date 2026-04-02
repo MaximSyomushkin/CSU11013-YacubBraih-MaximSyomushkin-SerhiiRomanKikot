@@ -28,4 +28,8 @@ class Widget {
     boolean isClicked(int mx, int my) {
         return mx >= x && mx <= x + w && my >= y && my <= y + h;
     }
+    void setPosition(float newX, float newY) {
+        this.x = newX;
+        this.y = newY;
+    }
 }

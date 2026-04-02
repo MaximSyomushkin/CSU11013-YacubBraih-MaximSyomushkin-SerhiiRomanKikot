@@ -33,5 +33,7 @@ class Button extends Widget {
     public boolean isHovered(int mx, int my) {
         return mx >= x && mx <= x + w && my >= y && my <= y + h;
     }
-
+    public String getLabel() {
+        return this.label;
+    }
 }

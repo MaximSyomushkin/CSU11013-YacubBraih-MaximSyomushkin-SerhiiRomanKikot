@@ -24,5 +24,8 @@ class FlightFiltersFabric {
     public static Predicate<Flight> byDestinationCity(String destination) {
         return flight -> flight.destinationCity.toLowerCase().startsWith(destination.toLowerCase());
     }
+    public static Predicate<Flight> byCancelled() {
+        return flight -> flight.cancelled == 1;
+    }
 
 }

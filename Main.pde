@@ -13,7 +13,7 @@ QueryEngine queryEngine;
 
 Screen tableScreen, graphScreen, menuScreen;
 
-PieChart pieChart, top5PieChart;
+PieChart pieChart, cancelledPieChart;
     
 ScrollableTable scrollableTable;
 TextInput sortByAirline, sortByDestination, sortByOrigin;
@@ -28,6 +28,8 @@ ArrayList<String> headers = new ArrayList<>();
 
 HashMap<String, Function<Boolean, Comparator<Flight>>> sorters;
 HashMap<String, Boolean> sortOrders;
+HashMap<String, String> carrierImages;
+Select select;
 
 void prepareTableData(List<Flight> flights) {
     ArrayList<ArrayList<String>> tableData = DataMapper.flightsToTableData(flights);
@@ -42,7 +44,7 @@ void setup() {
     graphScreen = new Screen();
     menuScreen = new Screen();
 
-    repository = new RepositoryFile("flights100k.csv");
+    repository = new RepositoryFile("flights2k.csv");
     dataService = new DataService(repository);
     queryEngine = new QueryEngine(dataService);
     dataQuery = new DataQuery();
@@ -63,6 +65,8 @@ void setup() {
 
     backButton = new Button(50, 50, 100, 30, color(180), "Back");
     applyButton = new Button(200, 250, 100, 30, color(180), "Apply");
+
+    select = new Select(200, 50, 200, 30, color(220), "Carrier");
     
     sortByAirline.setFocused(true);
 
@@ -88,6 +92,22 @@ void setup() {
      // top5PieChart = new PieChart(1200, 50, 250, 250, color(200,100,100), top5PieData);
     // tableScreen.addWidget(top5PieChart);
     HashMap<String, Float> pieData = new HashMap<String, Float>();
+    HashMap<String, Float> cancelledPieData = new HashMap<String, Float>();
+    carrierImages = new HashMap<String, String>();
+    carrierImages.put("AA", "american_airlines.png");
+    carrierImages.put("DL", "delta_airlines.png");
+    carrierImages.put("UA", "united_airlines.png");
+    carrierImages.put("WN", "southwest_airlines.png");
+    carrierImages.put("AS", "alaska_airlines.png");
+    carrierImages.put("F9", "frontier_airlines.png");
+    carrierImages.put("HA", "hawaiian_airlines.png");
+    carrierImages.put("NK", "spirit_airlines.png");
+    carrierImages.put("G4", "allegiant_airlines.png");
+
+
+
+
+
     for (Flight flight : flights) {
         String carrier = flight.carrier;
         if (pieData.containsKey(carrier)) {
@@ -96,15 +116,27 @@ void setup() {
             pieData.put(carrier, 1.0f);
         }
     }
-    pieChart = new PieChart(800, 50, 250, 250, color(100,200,100), pieData);
+    pieChart = new PieChart(100, 420, 250, 250, color(100,200,100), pieData, "All Flights by Carrier");
+    dataQuery.setFilter("cancelled", FlightFiltersFabric.byCancelled());
+    List<Flight> cancelledFlights = queryEngine.execute(dataQuery, 0, 0);
+    for (Flight flight : cancelledFlights) {
+        String carrier = flight.carrier;
+        if (cancelledPieData.containsKey(carrier)) {
+            cancelledPieData.put(carrier, cancelledPieData.get(carrier) + 1);
+        } else {
+            cancelledPieData.put(carrier, 1.0f);
+        }
+    }
+    cancelledPieChart = new PieChart(100, 120, 250, 250, color(200,100,100), cancelledPieData, "Cancelled Flights");
    
     
     graphScreen.addWidget(pieChart);
+    graphScreen.addWidget(cancelledPieChart);
     graphScreen.addWidget(backButton);
 
     // Headers for table
     headers.add("ID(↓)"); // 0
-    headers.add("Flight Date"); // 1
+    headers.add("Flight Date(↓)"); // 1
     headers.add("Carrier"); // 2
     headers.add("Carrier ID(↓)"); // 3
     headers.add("Origin"); // 4
@@ -142,6 +174,12 @@ void setup() {
     sortOrders.put("17", true);
     sorters.put("18", FlightsSortersFabric::byDistance);
     sortOrders.put("18", true);
+
+    select.addOption("Carrier");
+    select.addOption("Origin State");
+    select.addOption("Dest. State");
+
+    graphScreen.addWidget(select);
 
 
 
@@ -187,10 +225,12 @@ void mousePressed() {
         if (btn1.isClicked(mouseX, mouseY)) {
             println("Loading Tables...");
             gameState = 1;
+            dataQuery = new DataQuery();
         }
         if (btn2.isClicked(mouseX, mouseY)) {
             println("Loading Graphs...");
             gameState = 2;
+            dataQuery = new DataQuery();
         }
     } else if (gameState == 1) {
         tableScreen.handleMousePressed(mouseX, mouseY);
@@ -218,6 +258,46 @@ void mousePressed() {
         }
     } else if (gameState == 2) {
         graphScreen.handleMousePressed(mouseX, mouseY);
+        if (select.isOptionClicked(mouseX, mouseY)) {
+            String selectedOption = select.selectedOption;
+            HashMap<String, Float> newPieData = new HashMap<String, Float>();
+            dataQuery.setFilter("cancelled", FlightFiltersFabric.byCancelled());
+            List<Flight> flights = queryEngine.execute(dataQuery, 0, 0);
+            println("Selected option: " + selectedOption);
+            switch (selectedOption) {
+                case "Carrier":
+                    for (Flight flight : flights) {
+                        String carrier = flight.carrier;
+                        if (newPieData.containsKey(carrier)) {
+                            newPieData.put(carrier, newPieData.get(carrier) + 1);
+                        } else {
+                            newPieData.put(carrier, 1.0f);
+                        }
+                    }
+                    break;
+                case "Dest. State":
+                    for (Flight flight : flights) {
+                        String destState = flight.destinationState;
+                        if (newPieData.containsKey(destState)) {
+                            newPieData.put(destState, newPieData.get(destState) + 1);
+                        } else {
+                            newPieData.put(destState, 1.0f);
+                        }
+                    }
+                    break;
+                case "Origin State":
+                    for (Flight flight : flights) {
+                        String originState = flight.originState;
+                        if (newPieData.containsKey(originState)) {
+                            newPieData.put(originState, newPieData.get(originState) + 1);
+                        } else {
+                            newPieData.put(originState, 1.0f);
+                        }
+                    }
+                    break;
+            }
+            cancelledPieChart.setData(newPieData);
+        }
     }
     if (backButton.isClicked(mouseX, mouseY)) {
         gameState = 0; // Return to menu
@@ -228,7 +308,7 @@ void mouseReleased() {
     if (gameState == 1) {
         tableScreen.handleMouseReleased(mouseX, mouseY);
     } else if (gameState == 2) {
-        // Handle mouse release for graphs if needed
+        graphScreen.handleMouseReleased(mouseX, mouseY);
     }
 }
 void mouseDragged() {

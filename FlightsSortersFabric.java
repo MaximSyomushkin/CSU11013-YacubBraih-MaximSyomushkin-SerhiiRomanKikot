@@ -7,7 +7,6 @@ public class FlightsSortersFabric {
     public static final Comparator<Flight> byDistance(Boolean asc) {
         return (f1, f2) -> Boolean.TRUE.equals(asc) ? f1.distance - f2.distance : f2.distance - f1.distance;
     }
-
     public static final Comparator<Flight> byFlightDate(Boolean asc) {
         return (f1, f2) -> Boolean.TRUE.equals(asc) ? f1.getFlightDate().compareTo(f2.getFlightDate())
                 : f2.getFlightDate().compareTo(f1.getFlightDate());
