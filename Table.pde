@@ -132,10 +132,7 @@ class TableWidget extends Widget {
         return -1;
     }
     void handleMousePressed(int mx, int my) {
-        int headerIndex = getHeaderIndexByCoords(mx, my);
-        if (headerIndex != -1) {
-            println("Clicked on header: " + headers.get(headerIndex));
-        }
+
     }
 
 }

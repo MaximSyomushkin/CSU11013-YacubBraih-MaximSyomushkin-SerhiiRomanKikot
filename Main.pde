@@ -1,4 +1,7 @@
 import java.util.List;
+import java.util.HashMap;
+import java.util.Comparator;
+import java.util.function.Function;
 
 RepositoryFile repository;
 DataService dataService;
@@ -7,7 +10,6 @@ QueryEngine queryEngine;
 
 Screen tableScreen, graphScreen, menuScreen;
 
-TableWidget tableWidget;
 PieChart pieChart, top5PieChart;
     
 ScrollableTable scrollableTable;
@@ -21,6 +23,9 @@ int gameState = 0; // 0 = Menu, 1 = Table , 2 = Graph
 
 ArrayList<String> headers = new ArrayList<>();
 
+HashMap<String, Function<Boolean, Comparator<Flight>>> sorters;
+HashMap<String, Boolean> sortOrders;
+
 void prepareTableData(List<Flight> flights) {
     ArrayList<ArrayList<String>> tableData = DataMapper.flightsToTableData(flights);
     scrollableTable.setDisplayData(headers, tableData);
@@ -31,11 +36,10 @@ void setup() {
     graphScreen = new Screen();
     menuScreen = new Screen();
 
-    repository = new RepositoryFile("flights2k.csv");
+    repository = new RepositoryFile("flights100k.csv");
     dataService = new DataService(repository);
     queryEngine = new QueryEngine(dataService);
     dataQuery = new DataQuery();
-    tableWidget = new TableWidget();
     textInputGroup = new TextInputGroup(200,50,300, 300, color(220));
     
     List<Flight> flights = queryEngine.execute(dataQuery, 0, 0);
@@ -45,9 +49,9 @@ void setup() {
     tableScreen.addWidget(scrollableTable);
 
     // Input fields for sorting
-    sortByAirline = new TextInput(200, 50, 200, 30, color(220), "Sort by Airline");
-    sortByDestination = new TextInput(200, 120, 200, 30, color(220), "Sort by Destination");
-    sortByOrigin = new TextInput(200, 180, 200, 30, color(220), "Sort by Origin");
+    sortByAirline = new TextInput(200, 50, 200, 30, color(220), "Sort by Carrier");
+    sortByDestination = new TextInput(200, 120, 200, 30, color(220), "Sort by Destination City");
+    sortByOrigin = new TextInput(200, 180, 200, 30, color(220), "Sort by Origin City");
 
     applyButton = new Button(200, 250, 100, 30, color(180), "Apply");
 
@@ -92,26 +96,49 @@ void setup() {
     graphScreen.addWidget(backButton);
 
     // Headers for table
-    headers.add("ID");
-    headers.add("Flight Date");
-    headers.add("Carrier");
-    headers.add("Carrier ID");
-    headers.add("Origin");
-    headers.add("Origin City");
-    headers.add("Origin State");
-    headers.add("Origin WAC");
-    headers.add("Dest. Air");
-    headers.add("Dest. City");
-    headers.add("Dest. State");
-    headers.add("Dest. WAC");
-    headers.add("CRS Dep. Time");
-    headers.add("Dep. Time");
-    headers.add("CRS Arrival Time");
-    headers.add("Arrival Time");
-    headers.add("Cancelled");
-    headers.add("Diverted");
-    headers.add("Distance");
-    
+    headers.add("ID(↓)"); // 0
+    headers.add("Flight Date"); // 1
+    headers.add("Carrier"); // 2
+    headers.add("Carrier ID(↓)"); // 3
+    headers.add("Origin"); // 4
+    headers.add("Origin City"); // 5
+    headers.add("Origin State"); // 6
+    headers.add("Origin WAC"); // 7
+    headers.add("Dest. Air"); // 8
+    headers.add("Dest. City"); // 9
+    headers.add("Dest. State"); // 10
+    headers.add("Dest. WAC"); // 11
+    headers.add("CRS Dep. Time(↓)"); // 12 
+    headers.add("Dep. Time"); // 13
+    headers.add("CRS Arrival Time(↓)"); // 14
+    headers.add("Arrival Time"); // 15
+    headers.add("Cancelled(↓)"); // 16
+    headers.add("Diverted(↓)"); // 17
+    headers.add("Distance(↓)"); // 18
+
+    sorters = new HashMap<>();
+    sortOrders = new HashMap<>();
+
+    sorters.put("0", FlightsSortersFabric::byId);
+    sortOrders.put("0", true);
+    sorters.put("1", FlightsSortersFabric::byFlightDate);
+    sortOrders.put("1", true);
+    sorters.put("3", FlightsSortersFabric::byCarrierId);
+    sortOrders.put("3", true);
+    sorters.put("12", FlightsSortersFabric::byCrsDepartureTime);
+    sortOrders.put("12", true);
+    sorters.put("14", FlightsSortersFabric::byCrsArrivalTime);
+    sortOrders.put("14", true);
+    sorters.put("16", FlightsSortersFabric::byCancelled);
+    sortOrders.put("16", true);
+    sorters.put("17", FlightsSortersFabric::byDiverted);
+    sortOrders.put("17", true);
+    sorters.put("18", FlightsSortersFabric::byDistance);
+    sortOrders.put("18", true);
+
+
+
+
     prepareTableData(flights);
      // button setup
     btn1 = new Button(200, 150, 200, 50,color(180), "Table");
@@ -158,14 +185,33 @@ void mousePressed() {
         }
     } else if (gameState == 1) {
         tableScreen.handleMousePressed(mouseX, mouseY);
-        if (backButton.isClicked(mouseX, mouseY)) {
-            gameState = 0; // Return to menu
+        if (applyButton.isClicked(mouseX,mouseY)) {
+            String airline = sortByAirline.getText().trim();
+            String destination = sortByDestination.getText().trim();
+            String origin = sortByOrigin.getText().trim();
+            dataQuery.setFilter("airline", FlightFiltersFabric.byAirline(airline));
+            dataQuery.setFilter("destination", FlightFiltersFabric.byDestinationCity(destination));
+            dataQuery.setFilter("origin", FlightFiltersFabric.byOriginCity(origin));
+            List<Flight> flights = queryEngine.execute(dataQuery, 0, 0);
+            prepareTableData(flights);
+        }
+        int headerIndex = scrollableTable.getHeaderIndexByCoords(mouseX, mouseY);
+        if (headerIndex != -1) {
+            Function<Boolean, Comparator<Flight>> sorter = sorters.containsKey(String.valueOf(headerIndex)) ? sorters.get(String.valueOf(headerIndex)) : null;
+            if (sorter == null) return;
+            Boolean currentOrder = sortOrders.getOrDefault(String.valueOf(headerIndex), false);
+            Comparator<Flight> comparator = sorters.get(String.valueOf(headerIndex)).apply(!currentOrder);
+            sortOrders.put(String.valueOf(headerIndex), !currentOrder);
+            dataQuery.setSort(comparator);
+            headers.set(headerIndex, headers.get(headerIndex).charAt(headers.get(headerIndex).length() - 2) == '↓' ? headers.get(headerIndex).replace("↓", "↑") : headers.get(headerIndex).replace("↑", "↓"));
+            List<Flight> flights = queryEngine.execute(dataQuery, 0, 0);
+            prepareTableData(flights);
         }
     } else if (gameState == 2) {
         graphScreen.handleMousePressed(mouseX, mouseY);
-        if (backButton.isClicked(mouseX, mouseY)) {
-            gameState = 0; // Return to menu
-        }
+    }
+    if (backButton.isClicked(mouseX, mouseY)) {
+        gameState = 0; // Return to menu
     }
 }
 

@@ -17,11 +17,11 @@ class FlightFiltersFabric {
         return flight -> flight.carrier.toLowerCase().startsWith(airlineName.toLowerCase());
     }
 
-    public static Predicate<Flight> byOrigin(String origin) {
-        return flight -> flight.origin.toLowerCase().startsWith(origin.toLowerCase());
+    public static Predicate<Flight> byOriginCity(String origin) {
+        return flight -> flight.originCity.toLowerCase().startsWith(origin.toLowerCase());
     }
 
-    public static Predicate<Flight> byDestination(String destination) {
+    public static Predicate<Flight> byDestinationCity(String destination) {
         return flight -> flight.destinationCity.toLowerCase().startsWith(destination.toLowerCase());
     }
 

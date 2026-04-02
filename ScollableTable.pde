@@ -66,8 +66,16 @@ class ScrollableTable extends Widget {
         } else if (this.isClicked(mouseX, mouseY)) {
             float scrollX = (hScrollBar.spos - hScrollBar.sposMin) * hScrollMultiplier;
             float scrollY = (vScrollBar.spos - vScrollBar.sposMin) * vScrollMultiplier;
-            table.handleMousePressed((int)(mouseX + Math.max(0, scrollX)), (int)(mouseY + Math.max(0, scrollY)));
+            int index = table.getHeaderIndexByCoords((int)(mouseX + Math.max(0, scrollX)), (int)(mouseY + Math.max(0, scrollY)));
+            println(index);
         }
+    }
+    int getHeaderIndexByCoords(int mouseX, int mouseY) {
+        float scrollX = (hScrollBar.spos - hScrollBar.sposMin) * hScrollMultiplier;
+        float scrollY = (vScrollBar.spos - vScrollBar.sposMin) * vScrollMultiplier;
+        int index = table.getHeaderIndexByCoords((int)(mouseX + Math.max(0, scrollX)), (int)(mouseY + Math.max(0, scrollY)));
+        println(index);
+        return index;
     }
 
     @Override

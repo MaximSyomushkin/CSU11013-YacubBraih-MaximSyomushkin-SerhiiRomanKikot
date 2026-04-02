@@ -2,13 +2,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataMapper {
-    private DataMapper(){}
+    private DataMapper() {
+    }
+
     static ArrayList<ArrayList<String>> flightsToTableData(List<Flight> flights) {
         ArrayList<ArrayList<String>> tableData = new ArrayList<>();
         for (int i = 0; i < flights.size(); i++) {
             Flight flight = flights.get(i);
             ArrayList<String> row = new ArrayList<>();
-            row.add(String.valueOf(i + 1));
+            row.add(String.valueOf(flight.id));
             row.add(flight.flightDate);
             row.add(flight.carrier);
             row.add(String.valueOf(flight.carrierNum));

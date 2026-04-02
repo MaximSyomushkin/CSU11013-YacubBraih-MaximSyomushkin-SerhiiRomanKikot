@@ -2,12 +2,12 @@ import java.util.*;
 import java.util.function.*;
 
 public class DataQuery {
-    private Map<String, Comparator<Flight>> sorters;
+    private Comparator<Flight> sorter;
 
     private Map<String, Predicate<Flight>> filters;
 
     public DataQuery() {
-        sorters = new LinkedHashMap<>();
+        sorter = (a, b) -> 0;
         filters = new LinkedHashMap<>();
     }
 
@@ -23,18 +23,16 @@ public class DataQuery {
         filters.clear();
     }
 
-    public void setSort(String sortName, Comparator<Flight> comparator) {
-        sorters.put(sortName, comparator);
+    public void setSort(Comparator<Flight> comparator) {
+        sorter = comparator;
     }
 
-    public void removeSort(String sortName) {
-        sorters.remove(sortName);
+    public void removeSort() {
+        sorter = (a, b) -> 0;
     }
 
     public Comparator<Flight> getFullComparator() {
-        return sorters.values().stream()
-                .reduce(Comparator::thenComparing)
-                .orElse((a, b) -> 0);
+        return sorter;
     }
 
     public Collection<Predicate<Flight>> getFilters() {

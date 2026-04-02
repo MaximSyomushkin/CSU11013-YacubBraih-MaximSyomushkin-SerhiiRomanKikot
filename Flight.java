@@ -1,6 +1,7 @@
 import java.time.LocalDateTime;
 
 class Flight {
+    int id;
     String flightDate;
     String carrier;
     int carrierNum;
@@ -20,10 +21,12 @@ class Flight {
     int diverted;
     int distance;
 
-    Flight(String flightDate, String carrier, int carrierNum, String origin, String originCity, String originState,
+    Flight(int id, String flightDate, String carrier, int carrierNum, String origin, String originCity,
+            String originState,
             int originWAC, String destinationAir, String destinationCity, String destinationState, int destinationWAC,
             int crsDepartureTime, int departureTime, int crsArrivalTime, int arrivalTime, int cancelled, int diverted,
             int distance) {
+        this.id = id;
         this.flightDate = flightDate;
         this.carrier = carrier;
         this.carrierNum = carrierNum;
@@ -55,6 +58,13 @@ class Flight {
         int hour = Integer.parseInt(timeParts[0]);
         int minute = Integer.parseInt(timeParts[1]);
         return LocalDateTime.of(year, month, day, hour, minute);
+    }
+
+    public int getDelay() {
+        if (cancelled == 1 || diverted == 1) {
+            return Integer.MAX_VALUE;
+        }
+        return arrivalTime - crsArrivalTime;
     }
 
     public String toString() {
