@@ -3,6 +3,9 @@ import java.util.HashMap;
 import java.util.Comparator;
 import java.util.function.Function;
 
+PFont headerFont;
+PFont everythingFont;
+
 RepositoryFile repository;
 DataService dataService;
 DataQuery dataQuery;
@@ -32,6 +35,9 @@ void prepareTableData(List<Flight> flights) {
 }
 void setup() {
     size(1400,800);
+    headerFont = createFont("Arial-BoldMT-48.vlw", 48);
+    everythingFont = createFont("ArialMT-20.vlw", 20);
+    textFont(everythingFont);
     tableScreen = new Screen();
     graphScreen = new Screen();
     menuScreen = new Screen();
@@ -53,9 +59,10 @@ void setup() {
     sortByDestination = new TextInput(200, 120, 200, 30, color(220), "Sort by Destination City");
     sortByOrigin = new TextInput(200, 180, 200, 30, color(220), "Sort by Origin City");
 
-    applyButton = new Button(200, 250, 100, 30, color(180), "Apply");
+    
 
     backButton = new Button(50, 50, 100, 30, color(180), "Back");
+    applyButton = new Button(200, 250, 100, 30, color(180), "Apply");
     
     sortByAirline.setFocused(true);
 
@@ -141,8 +148,8 @@ void setup() {
 
     prepareTableData(flights);
      // button setup
-    btn1 = new Button(200, 150, 200, 50,color(180), "Table");
-    btn2 = new Button(200, 250, 200, 50, color(180), "Graphs");
+    btn1 = new Button(width/2-100, 150, 200, 50,color(180), "Table");
+    btn2 = new Button(width/2-100, 250, 200, 50, color(180), "Pie Chart");
     menuScreen.addWidget(btn1);
     menuScreen.addWidget(btn2);
 }
@@ -152,8 +159,10 @@ void draw() {
    if (gameState == 0) {
     fill(0);
     textAlign(CENTER);
-    textSize(15);
+    textSize(100);
+    textFont(headerFont);
     text("Main menu", width/2, 80);
+    textFont(everythingFont);
     menuScreen.drawScreen();
   } else if (gameState == 1) {
     tableScreen.drawScreen();
