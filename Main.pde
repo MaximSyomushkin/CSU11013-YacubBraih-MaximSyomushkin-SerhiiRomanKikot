@@ -1,5 +1,6 @@
 import java.util.List;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Comparator;
 import java.util.function.Function;
 import processing.sound.*;
@@ -14,7 +15,7 @@ SoundFile transitionSound;
 
 Screen tableScreen, graphScreen, menuScreen;
 
-PieChart pieChart, cancelledPieChart;
+PieChart pieChart, cancelledPieChart, top5PieChart;
     
 ScrollableTable scrollableTable;
 TextInput sortByAirline, sortByDestination, sortByOrigin;
@@ -31,6 +32,8 @@ HashMap<String, Function<Boolean, Comparator<Flight>>> sorters;
 HashMap<String, Boolean> sortOrders;
 HashMap<String, String> carrierImages;
 Select select;
+PImage airlineLogo;
+String mostPopularCarrier;
 
 void prepareTableData(List<Flight> flights) {
     ArrayList<ArrayList<String>> tableData = DataMapper.flightsToTableData(flights);
@@ -48,7 +51,7 @@ void setup() {
     graphScreen = new Screen();
     menuScreen = new Screen();
 
-    repository = new RepositoryFile("flights2k.csv");
+    repository = new RepositoryFile("flights10k.csv");
     dataService = new DataService(repository);
     queryEngine = new QueryEngine(dataService);
     dataQuery = new DataQuery();
@@ -82,19 +85,8 @@ void setup() {
     tableScreen.addWidget(backButton);
     tableScreen.addWidget(textInputGroup);
     
-    // Prepare pie chart data
-    // HashMap<String, Float> top5PieData = new HashMap<String, Float>();
-    // int count = 0;
-    // for (Map.Entry<String, Float> entry : pieData.entrySet()) {
-    //     if (count < 5) {
-    //         top5PieData.put(entry.getKey(), entry.getValue());
-    //         count++;
-    //     } else {
-    //         break;
-    //     }
-    // }
-     // top5PieChart = new PieChart(1200, 50, 250, 250, color(200,100,100), top5PieData);
-    // tableScreen.addWidget(top5PieChart);
+    
+
     HashMap<String, Float> pieData = new HashMap<String, Float>();
     HashMap<String, Float> cancelledPieData = new HashMap<String, Float>();
     carrierImages = new HashMap<String, String>();
@@ -108,9 +100,22 @@ void setup() {
     carrierImages.put("NK", "spirit_airlines.png");
     carrierImages.put("G4", "allegiant_airlines.png");
 
-
-
-
+    HashMap<String, Float> top5PieData = new HashMap<String, Float>();
+    int count = 0;
+    for (Flight flight : flights) {
+        String carrier = flight.carrier;
+        if (top5PieData.containsKey(carrier)) {
+            top5PieData.put(carrier, top5PieData.get(carrier) + 1);
+        } else {
+            if (count < 5) {
+                top5PieData.put(carrier, 1.0f);
+                count++;
+            }
+        }
+    }
+    top5PieChart = new PieChart(800, 420, 250, 250, color(200,100,100), top5PieData, "Top 5 Carriers");
+    
+    graphScreen.addWidget(top5PieChart);
 
     for (Flight flight : flights) {
         String carrier = flight.carrier;
@@ -120,6 +125,18 @@ void setup() {
             pieData.put(carrier, 1.0f);
         }
     }
+    mostPopularCarrier = "";
+    float maxFlights = 0;
+    for (String carrier : pieData.keySet()) {
+        if (pieData.get(carrier) > maxFlights) {
+            maxFlights = pieData.get(carrier);
+            mostPopularCarrier = carrier;
+        }
+    }
+    airlineLogo = loadImage(String.format("./data/%s", carrierImages.get(mostPopularCarrier)));
+    println(airlineLogo);
+    println("Most popular carrier: " + mostPopularCarrier + " " + carrierImages.get(mostPopularCarrier) + " flights.");
+
     pieChart = new PieChart(100, 420, 250, 250, color(100,200,100), pieData, "All Flights by Carrier");
     dataQuery.setFilter("cancelled", FlightFiltersFabric.byCancelled());
     List<Flight> cancelledFlights = queryEngine.execute(dataQuery, 0, 0);
@@ -131,7 +148,7 @@ void setup() {
             cancelledPieData.put(carrier, 1.0f);
         }
     }
-    cancelledPieChart = new PieChart(100, 120, 250, 250, color(200,100,100), cancelledPieData, "Cancelled Flights");
+    cancelledPieChart = new PieChart(400, 120, 250, 250, color(200,100,100), cancelledPieData, "Cancelled Flights");
    
     
     graphScreen.addWidget(pieChart);
@@ -211,8 +228,11 @@ void draw() {
     menuScreen.drawScreen();
   } else if (gameState == 1) {
     tableScreen.drawScreen();
-  } else if (gameState == 2) {
+} else if (gameState == 2) {
     graphScreen.drawScreen();
+    textAlign(LEFT, LEFT);
+    text("Most popular carrier: " + mostPopularCarrier, 500, 400);
+    image(airlineLogo, 500, 420, 200, 200);
   }
 }
 
