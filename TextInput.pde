@@ -50,7 +50,7 @@ class TextInput extends Widget {
         if (isFocused) {
             if (key == BACKSPACE) {
                 removeLastCharacter();
-            } else if (key != ENTER && key != RETURN && key != CONTROL && key != SHIFT && key != ALT) {
+            } else if (key != CODED) {
                 addCharacter(key);
             }
         }
