@@ -229,10 +229,9 @@ void draw() {
         image(backgroundImage, 0, 0, width, height);
     } 
     else if (isDarkmode) {
-        background(60);
+        background(80);
     }
-    else background(255);
-    rect(1178, 205, 10, 10);
+    else background(255); 
    if (gameState == 0) {
     fill(0);
     textAlign(CENTER);
