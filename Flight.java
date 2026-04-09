@@ -1,5 +1,9 @@
 import java.time.LocalDateTime;
 
+/*
+    Implemented by: Serhii-Roman Kikot
+    Represents a single flight entity with its details
+*/
 class Flight {
     int id;
     String flightDate;
@@ -46,7 +50,7 @@ class Flight {
         this.diverted = diverted;
         this.distance = distance;
     }
-
+    // Parses the flight date string into a LocalDateTime object
     public LocalDateTime getFlightDate() {
         // 01/02/2022 00:00
         String[] dateTimeParts = flightDate.split(" ");
@@ -59,7 +63,7 @@ class Flight {
         int minute = Integer.parseInt(timeParts[1]);
         return LocalDateTime.of(year, month, day, hour, minute);
     }
-
+    // Calculates the flight delay in minutes
     public int getDelay() {
         if (cancelled == 1 || diverted == 1) {
             return Integer.MAX_VALUE;

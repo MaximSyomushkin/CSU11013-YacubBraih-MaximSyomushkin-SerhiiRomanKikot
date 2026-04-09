@@ -1,10 +1,13 @@
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+    Implemented by: Serhii-Roman Kikot
+    Utility class for mapping data models to UI representations
+*/
 public class DataMapper {
-    private DataMapper() {
-    }
-
+    private DataMapper() {}
+    // Converts a list of Flight objects into a 2D String list for table structures
     static ArrayList<ArrayList<String>> flightsToTableData(List<Flight> flights) {
         ArrayList<ArrayList<String>> tableData = new ArrayList<>();
         for (int i = 0; i < flights.size(); i++) {

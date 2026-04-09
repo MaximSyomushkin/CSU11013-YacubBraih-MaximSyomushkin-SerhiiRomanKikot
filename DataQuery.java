@@ -7,7 +7,7 @@ public class DataQuery {
     private Map<String, Predicate<Flight>> filters;
 
     public DataQuery() {
-          sorter = (a, b) -> 0;
+        sorter = (a, b) -> 0;
         filters = new LinkedHashMap<>();
     }
 
