@@ -1,3 +1,7 @@
+/*
+    Implemented by: Maxim Syomushkin
+    Vertical scrollbar widget for scrolling content vertically
+*/
 class VScrollbar extends Widget {
 
   float spos, newspos;

@@ -1,3 +1,7 @@
+/*
+    Implemented by: Maxim Syomushkin
+    Button widget for handling user interactions
+*/
 class Button extends Widget {
     private String label;
     color defaultStroke;

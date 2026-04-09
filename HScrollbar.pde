@@ -1,3 +1,7 @@
+/*
+    Implemented by: Maxim Syomushkin
+    Horizontal scrollbar widget for scrolling content horizontally
+*/
 class HScrollbar extends Widget {
 
   float spos, newspos;
