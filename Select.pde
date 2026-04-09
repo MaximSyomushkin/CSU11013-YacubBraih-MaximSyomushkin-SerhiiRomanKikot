@@ -68,7 +68,6 @@ class Select extends Widget {
         return super.isClicked(mouseX, mouseY);
     }
     boolean isOptionClicked(int mouseX, int mouseY) {
-        println(isOpen);
         if (isOpen) {
             for (Button button : buttons) {
                 if (button.isClicked(mouseX, mouseY)) {

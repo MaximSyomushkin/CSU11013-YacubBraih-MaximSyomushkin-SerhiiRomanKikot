@@ -120,10 +120,8 @@ class TableWidget extends Widget {
         if (headerY < y || headerY > y + headerHeight) {
             return -1;
         }
-        println("Clicked on header area");
         float xOffset = 0;
         for (int i = 0; i < columnWidths.size(); i++) {
-            println("Checking column " + i + " at X: " + (x + xOffset) + " to " + (x + xOffset + columnWidths.get(i)));
             if (headerX >= x + xOffset && headerX <= x + xOffset + columnWidths.get(i)) {
                 return i;
             }

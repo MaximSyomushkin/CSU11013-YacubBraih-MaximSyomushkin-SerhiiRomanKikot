@@ -134,8 +134,6 @@ void setup() {
         }
     }
     airlineLogo = loadImage(String.format("./data/%s", carrierImages.get(mostPopularCarrier)));
-    println(airlineLogo);
-    println("Most popular carrier: " + mostPopularCarrier + " " + carrierImages.get(mostPopularCarrier) + " flights.");
 
     pieChart = new PieChart(100, 420, 250, 250, color(100,200,100), pieData, "All Flights by Carrier");
     dataQuery.setFilter("cancelled", FlightFiltersFabric.byCancelled());
@@ -201,8 +199,6 @@ void setup() {
     select.addOption("Dest. State");
 
     graphScreen.addWidget(select);
-
-
 
 
     prepareTableData(flights);
@@ -298,7 +294,6 @@ void mousePressed() {
             HashMap<String, Float> newPieData = new HashMap<String, Float>();
             dataQuery.setFilter("cancelled", FlightFiltersFabric.byCancelled());
             List<Flight> flights = queryEngine.execute(dataQuery, 0, 0);
-            println("Selected option: " + selectedOption);
             switch (selectedOption) {
                 case "Carrier":
                     for (Flight flight : flights) {
