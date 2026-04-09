@@ -69,9 +69,9 @@ void setup() {
     tableScreen.addWidget(scrollableTable);
 
     // Input fields for sorting
-    sortByAirline = new TextInput(200, 50, 200, 30, color(220), "Sort by Carrier");
-    sortByDestination = new TextInput(200, 120, 200, 30, color(220), "Sort by Destination City");
-    sortByOrigin = new TextInput(200, 180, 200, 30, color(220), "Sort by Origin City");
+    sortByAirline = new TextInput(200, 50, 200, 30, color(220), "Filter by Carrier");
+    sortByDestination = new TextInput(200, 120, 200, 30, color(220), "Filter by Destination City");
+    sortByOrigin = new TextInput(200, 180, 200, 30, color(220), "Filter by Origin City");
 
     
 
