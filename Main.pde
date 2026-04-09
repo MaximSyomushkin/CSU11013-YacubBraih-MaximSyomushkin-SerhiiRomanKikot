@@ -5,6 +5,8 @@ import java.util.Comparator;
 import java.util.function.Function;
 import processing.sound.*;
 
+boolean isDarkmode = false;
+
 RepositoryFile repository;
 DataService dataService;
 DataQuery dataQuery;
@@ -16,10 +18,12 @@ SoundFile transitionSound;
 Screen tableScreen, graphScreen, menuScreen;
 
 PieChart pieChart, cancelledPieChart, top5PieChart;
-    
+
+PImage backgroundImage;
+
 ScrollableTable scrollableTable;
 TextInput sortByAirline, sortByDestination, sortByOrigin;
-Button btn1, btn2, quitButton, applyButton, backButton;
+Button btn1, btn2, quitButton, darkmodeButton, applyButton, backButton;
 
 HashMap<String, TextInput> focusedInput = new HashMap<>();
 TextInputGroup textInputGroup;
@@ -45,13 +49,14 @@ void setup() {
     clickSound = new SoundFile(this, "universfield-computer-mouse-click-352734.mp3");
     loadSound = new SoundFile(this, "ElevenLabs_Smooth_ascending_tones,_process_start.mp3");
     transitionSound = new SoundFile(this, "oxidvideos-transition-sfx-2-409073.mp3");
-
+    backgroundImage = loadImage("USmap.png");
+    
 
     tableScreen = new Screen();
     graphScreen = new Screen();
     menuScreen = new Screen();
 
-    repository = new RepositoryFile("flights10k.csv");
+    repository = new RepositoryFile("flights2k.csv");
     dataService = new DataService(repository);
     queryEngine = new QueryEngine(dataService);
     dataQuery = new DataQuery();
@@ -203,23 +208,31 @@ void setup() {
 
     prepareTableData(flights);
      // button setup
-    btn1 = new Button(width/2-100, 150, 200, 50,color(180), "Table");
-    btn2 = new Button(width/2-100, 250, 200, 50, color(180), "Pie Chart");
-    quitButton = new Button(width/2-100, 350, 200, 50, color(180), "Quit");
+    btn1 = new Button(width/2-100, 250, 200, 50,color(180), "Table");
+    btn2 = new Button(width/2-100, 350, 200, 50, color(180), "Pie Chart");
+    quitButton = new Button(width/2-100, 450, 200, 50, color(180), "Quit");
+    darkmodeButton = new Button(width/2 - 100, 550, 100, 30, color(180), "Dark Mode");
     menuScreen.addWidget(btn1);
     menuScreen.addWidget(btn2);
     menuScreen.addWidget(quitButton);
+    menuScreen.addWidget(darkmodeButton);
 
     loadSound.play();
 }
 
 void draw() {
-    background(255);
+    if (gameState == 0) {
+        image(backgroundImage, 0, 0, width, height);
+    } 
+    else if (isDarkmode) {
+        background(80);
+    }
+    else background(255); 
    if (gameState == 0) {
     fill(0);
     textAlign(CENTER);
     textSize(100);
-    text("Main menu", width/2, 80);
+    text("Main menu", width/2, 150);
     textSize(20);
     menuScreen.drawScreen();
   } else if (gameState == 1) {
@@ -231,7 +244,6 @@ void draw() {
     image(airlineLogo, 500, 420, 200, 200);
   }
 }
-
 
 void keyPressed() {
     if (gameState == 0) {
@@ -262,9 +274,18 @@ void mousePressed() {
             clickSound.play();
             exit();
         }
+        if (darkmodeButton.isClicked(mouseX, mouseY)) {
+            println("Toggling Dark Mode...");
+            clickSound.play();
+            if (backgroundImage != null) {
+                backgroundImage.filter(INVERT);
+            }
+            isDarkmode = !isDarkmode;
+        }
     } else if (gameState == 1) {
         tableScreen.handleMousePressed(mouseX, mouseY); 
         if (applyButton.isClicked(mouseX,mouseY)) {
+            clickSound.play();
             String airline = sortByAirline.getText().trim();
             String destination = sortByDestination.getText().trim();
             String origin = sortByOrigin.getText().trim();
@@ -285,11 +306,14 @@ void mousePressed() {
             headers.set(headerIndex, headers.get(headerIndex).charAt(headers.get(headerIndex).length() - 2) == '↓' ? headers.get(headerIndex).replace("↓", "↑") : headers.get(headerIndex).replace("↑", "↓"));
             List<Flight> flights = queryEngine.execute(dataQuery, 0, 0);
             prepareTableData(flights);
+
         }
     } else if (gameState == 2) {
-        transitionSound.play();
         graphScreen.handleMousePressed(mouseX, mouseY);
         if (select.isOptionClicked(mouseX, mouseY)) {
+            if (!backButton.isClicked(mouseX, mouseY)) {
+                clickSound.play();
+            }
             String selectedOption = select.selectedOption;
             HashMap<String, Float> newPieData = new HashMap<String, Float>();
             dataQuery.setFilter("cancelled", FlightFiltersFabric.byCancelled());
